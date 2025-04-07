@@ -1,62 +1,65 @@
-#include <iostream>
-#include <vector>
-#include <algorithm>
-#include <iomanip>
-
+#include<iostream>
+#include<vector>
+#include<algorithm>
 using namespace std;
 
-struct Process {
-    int id, arrivalTime, burstTime;
-    int waitingTime = 0, turnaroundTime = 0, completionTime = 0;
-    bool completed = false;
+struct Process{
+    int id;
+    int arrival;
+    int burst;
+    int waiting;
+    int turnAr;
+    int completion;
+
 };
 
-void resetProcesses(vector<Process>& original, vector<Process>& target) {
-    target = original;
-    for (auto& p : target) {
-        p.waitingTime = 0;
-        p.turnaroundTime = 0;
-        p.completionTime = 0;
-        p.completed = false;
-    }
+void fcfs(vector<Process> &processes){
+sort(processes.begin(), processes.end(),
+     [](Process a, Process b){
+     return a.arrival< b.arrival;
+     });
+
+     int currentTime =0;
+     float totalWait=0, totalTurnAr=0;
+     cout<<"Gantt Chart:"<<endl;
+
+     for(auto &p: processes){
+        if(currentTime<p.arrival)
+            currentTime=p.arrival;
+
+        int start= currentTime;
+        currentTime += p.burst;
+
+        p.completion = currentTime;
+        p.turnAr = p.completion - p.arrival;
+        p.waiting = p.turnAr - p.burst;
+
+        totalWait += p.waiting;
+        totalTurnAr +=p.turnAr;
+        cout<<"|p" << p.id<<" ";
+     }
+             cout<<"\n";
+             currentTime=0;
+             cout<<"0";
+
+             for(auto &p :processes){
+                if(currentTime <p.arrival)
+                    currentTime = p.arrival;
+                currentTime += p.burst;
+                cout<<" "<< currentTime;
+             }
+
+             cout<<"\n";
+             cout<<"\nProcess\tArrival\tBurst\tCompletion\tWaiting\tTurnAround\n";
+
+             for(auto &p :processes){
+                cout<<"p"<<p.id<<"\t"<<p.arrival<<"\t"<<p.burst<<"\t"<<p.completion<<"\t"<<p.waiting<<"\t"<<p.turnAr<<"\n";
+             }
+             int n= processes.size();
+             cout<<"Avg Waiting:"<<totalWait;
+             cout<<"Avg TurnAr: "<<totalTurnAr;
 }
-
-// FCFS Scheduling
-void fcfs(vector<Process> processes) {
-    sort(processes.begin(), processes.end(), [](Process a, Process b) {
-        return a.arrivalTime < b.arrivalTime;
-    });
-
-    int time = 0;
-    float totalWait = 0, totalTurn = 0;
-
-    for (auto& p : processes) {
-        if (time < p.arrivalTime)
-            time = p.arrivalTime;
-
-        p.waitingTime = time - p.arrivalTime;
-        time += p.burstTime;
-        p.turnaroundTime = p.waitingTime + p.burstTime;
-        p.completionTime = time;
-
-        totalWait += p.waitingTime;
-        totalTurn += p.turnaroundTime;
-    }
-
-    cout << "\n--- FCFS Scheduling ---\n";
-    cout << "ID\tAT\tBT\tWT\tTAT\n";
-    for (auto p : processes) {
-        cout << "P" << p.id << "\t" << p.arrivalTime << "\t" << p.burstTime << "\t"
-             << p.waitingTime << "\t" << p.turnaroundTime << "\n";
-    }
-
-    cout << fixed << setprecision(2);
-    cout << "Avg Waiting Time: " << totalWait / processes.size() << endl;
-    cout << "Avg Turnaround Time: " << totalTurn / processes.size() << endl;
-}
-
-// SJF Non-Preemptive Scheduling
-void sjf(vector<Process> processes) {
+oid sjf(vector<Process> processes) {
     int time = 0, completed = 0;
     float totalWait = 0, totalTurn = 0;
     int n = processes.size();
@@ -104,30 +107,28 @@ void sjf(vector<Process> processes) {
     cout << "Avg Turnaround Time: " << totalTurn / n << endl;
 }
 
-int main() {
-    int n;
-    cout << "Enter number of processes: ";
-    cin >> n;
 
-    vector<Process> original(n);
 
-    for (int i = 0; i < n; i++) {
-        cout << "\nProcess " << i + 1 << ":\n";
-        cout << "ID: ";
-        cin >> original[i].id;
-        cout << "Arrival Time: ";
-        cin >> original[i].arrivalTime;
-        cout << "Burst Time: ";
-        cin >> original[i].burstTime;
-    }
+int main(){
+int n;
+cout<<"Enter num of Processes:";
+cin>>n;
+vector<Process>processes(n);
 
-    vector<Process> fcfsList, sjfList;
 
-    resetProcesses(original, fcfsList);
-    resetProcesses(original, sjfList);
 
-    fcfs(fcfsList);
-    sjf(sjfList);
+for(int i=0;i<n;i++){
+cout << "Enter details for process " << i + 1 << ":\n";
 
-    return 0;
+cout<<"Process ID:";
+cin>>processes[i].id;
+cout<<"Process Arrival:";
+cin>>processes[i].arrival;
+cout<<"Burst Time:";
+cin>>processes[i].burst;
+
+}
+fcfs(processes);
+sjf(processes);
+return 0;
 }
